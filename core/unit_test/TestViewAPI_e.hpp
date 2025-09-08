@@ -280,7 +280,11 @@ TEST(TEST_CATEGORY, view_allocation_large_rank) {
 #endif
   using ExecutionSpace = typename TEST_EXECSPACE::execution_space;
   using MemorySpace    = typename TEST_EXECSPACE::memory_space;
-  constexpr int dim    = 16;
+  #ifdef KOKKOS_ENABLE_LOW_MEMORY_TESTING
+  constexpr int dim    = 15; // allocates ~2.3 MiB instead of 4 GiB
+  #else
+    constexpr int dim  = 16;
+  #endif
   using FunctorType    = TestViewAllocationLargeRank<MemorySpace>;
   typename FunctorType::ViewType v("v", dim, dim, dim, dim, dim, dim, dim, dim);
 
