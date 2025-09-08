@@ -189,10 +189,12 @@ TEST(TEST_CATEGORY, large_team_scratch_size) {
 #ifdef KOKKOS_ENABLE_OPENMPTARGET
   // Allocate slightly more than (2^31-1) bytes. The other value resulted in
   // problems allocating too much memory.
-  const size_t per_team_extent = 268435460;
+  const size_t per_team_extent = 268435460; // ~2 GiB allocation
+#elif KOKKOS_ENABLE_LOW_MEMORY_TESTING
+  const size_t per_team_extent = 268435460; // 2 GiB allocation to prevent too much memory usage
 #else
   // Value originally chosen in the reproducer.
-  const size_t per_team_extent = 502795560;
+  const size_t per_team_extent = 502795560; // 3.746 GiB
 #endif
 
   const size_t per_team_bytes = per_team_extent * sizeof(double);
