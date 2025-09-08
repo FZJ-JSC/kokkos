@@ -64,6 +64,7 @@
 #cmakedefine KOKKOS_ENABLE_IMPL_VIEW_OF_VIEWS_DESTRUCTOR_PRECONDITION_VIOLATION_WORKAROUND
 #cmakedefine KOKKOS_ENABLE_ATOMICS_BYPASS
 #cmakedefine KOKKOS_ENABLE_IMPL_CHECK_POSSIBLY_BREAKING_LAYOUTS
+#cmakedefine KOKKOS_ENABLE_LOW_MEMORY_TESTING // enables lowered memory requirements for unit tests and performance benchmark
 
 /* TPL Settings */
 #cmakedefine KOKKOS_ENABLE_HWLOC
