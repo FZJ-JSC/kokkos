@@ -168,12 +168,16 @@ TEST(TEST_CATEGORY, large_team_scratch_size) {
   const size_t per_team_extent = 502795560;
 #else
   const size_t per_team_extent = 268435460;
-#endif
+#else
 
 #ifdef KOKKOS_ENABLE_LOW_MEM_TESTS
-  const size_t per_team_extent = 268435460; // 2 GiB allocation to prevent too much memory usage
+  const size_t per_team_extent =
+      268435460;  // 2 GiB allocation to prevent too much memory usage
+#else
+  // Value originally chosen in the reproducer.
+  const size_t per_team_extent = 502795560;
 #endif
-
+#endif
 
   const size_t per_team_bytes = per_team_extent * sizeof(double);
 
@@ -453,7 +457,9 @@ TEST(TEST_CATEGORY, team_single_team_int_ptr) {
 }
 
 TEST(TEST_CATEGORY, team_handle_by_value) {
-  { TestTeamPolicyHandleByValue<TEST_EXECSPACE>(); }
+  {
+    TestTeamPolicyHandleByValue<TEST_EXECSPACE>();
+  }
 }
 
 }  // namespace Test
