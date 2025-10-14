@@ -62,36 +62,11 @@ static void MallocTouchFree(benchmark::State& state) {
 }
 
 #ifdef KOKKOS_ENABLE_LOW_MEM_TESTS
-
-BENCHMARK(Malloc)
-    ->ArgName("N")
-    ->RangeMultiplier(16)
-    ->Range(1, int64_t(1) << 31)
-    ->UseManualTime()
-    ->Unit(benchmark::kMicrosecond);
-
-BENCHMARK(MallocFree)
-    ->ArgName("N")
-    ->RangeMultiplier(16)
-    ->Range(1, int64_t(1) << 31)
-    ->UseManualTime()
-    ->Unit(benchmark::kMicrosecond);
-
-BENCHMARK(MallocTouch)
-    ->ArgName("N")
-    ->RangeMultiplier(16)
-    ->Range(1, int64_t(1) << 31)
-    ->UseManualTime()
-    ->Unit(benchmark::kMicrosecond);
-
-BENCHMARK(MallocTouchFree)
-    ->ArgName("N")
-    ->RangeMultiplier(16)
-    ->Range(1, int64_t(1) << 31)
-    ->UseManualTime()
-    ->Unit(benchmark::kMicrosecond);
-
+constexpr int test_range = 31;
 #else
+constexpr int test_range = 32;
+#endif
+
 BENCHMARK(Malloc)
     ->ArgName("N")
     ->RangeMultiplier(16)
@@ -119,7 +94,5 @@ BENCHMARK(MallocTouchFree)
     ->Range(1, int64_t(1) << test_range)
     ->UseManualTime()
     ->Unit(benchmark::kMicrosecond);
-
-#endif
 
 }  // namespace Benchmark
