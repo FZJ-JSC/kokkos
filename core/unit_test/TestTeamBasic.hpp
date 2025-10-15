@@ -160,23 +160,13 @@ TEST(TEST_CATEGORY, large_team_scratch_size) {
   const int level   = 1;
   const int n_teams = 1;
 
-#if defined(KOKKOS_ENABLE_LARGE_MEM_TESTS) || defined(KOKKOS_ENABLE_CUDA) || \
-    defined(KOKKOS_ENABLE_HIP) || defined(KOKKOS_ENABLE_SYCL)
-  //  The GPU backends use unsigned as size_type and we need to check that we
-  //  didn't screw the scratch space calculation up, CPU backends anyway use
-  //  size_t so less likely to screw up
-  const size_t per_team_extent = 502795560;
-#else
+#if defined(KOKKOS_ENABLE_OPENMPTARGET) || defined(KOKKOS_ENABLE_LOW_MEM_TESTS)
+  // Allocate slightly more than (2^31-1) bytes. The other value resulted in
+  // problems allocating too much memory.
   const size_t per_team_extent = 268435460;
-#else
-
-#ifdef KOKKOS_ENABLE_LOW_MEM_TESTS
-  const size_t per_team_extent =
-      268435460;  // 2 GiB allocation to prevent too much memory usage
 #else
   // Value originally chosen in the reproducer.
   const size_t per_team_extent = 502795560;
-#endif
 #endif
 
   const size_t per_team_bytes = per_team_extent * sizeof(double);
@@ -457,6 +447,9 @@ TEST(TEST_CATEGORY, team_single_team_int_ptr) {
 }
 
 TEST(TEST_CATEGORY, team_handle_by_value) {
+  {
+    TestTeamPolicyHandleByValue<TEST_EXECSPACE>();
+  }
   {
     TestTeamPolicyHandleByValue<TEST_EXECSPACE>();
   }
