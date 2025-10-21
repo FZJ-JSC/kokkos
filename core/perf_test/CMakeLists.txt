@@ -1,4 +1,28 @@
-# Download google/benchmark if it was not found by find_package
+# FIXME_OPENMPTARGET - the NVIDIA HPC compiler nvc++ in the OpenMPTarget backend does not pass the perf_tests.
+# FIXME_OPENACC - temporarily disabled due to unimplemented features
+if((KOKKOS_ENABLE_OPENMPTARGET OR KOKKOS_ENABLE_OPENACC) AND KOKKOS_CXX_COMPILER_ID STREQUAL NVHPC)
+  return()
+endif()
+if(KOKKOS_ENABLE_OPENACC AND KOKKOS_CXX_COMPILER_ID STREQUAL Clang)
+  return()
+endif()
+
+# all PerformanceTest_* executables are part of regular tests
+# TODO: finish converting these into benchmarks (in progress)
+if(KOKKOS_ENABLE_TESTS)
+  if(KOKKOS_ENABLE_CUDA OR KOKKOS_ENABLE_HIP OR KOKKOS_ENABLE_SYCL)
+    kokkos_add_executable(PerformanceTest_SharedSpace SOURCES test_sharedSpace.cpp)
+  endif()
+
+  kokkos_include_directories(REQUIRED_DURING_INSTALLATION_TESTING ${CMAKE_CURRENT_SOURCE_DIR})
+endif()
+
+if(NOT Kokkos_ENABLE_BENCHMARKS)
+  return()
+endif()
+
+# Find or download google/benchmark library
+find_package(benchmark QUIET 1.8.3)
 if(benchmark_FOUND)
   message(STATUS "Using google benchmark found in ${benchmark_DIR}")
 else()
