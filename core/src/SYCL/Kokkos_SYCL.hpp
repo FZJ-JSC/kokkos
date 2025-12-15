@@ -25,10 +25,6 @@ static_assert(false,
 #include <impl/Kokkos_HostSharedPtr.hpp>
 #include <impl/Kokkos_InitializationSettings.hpp>
 
-#include <algorithm>
-#include <iterator>
-#include <ranges>
-
 namespace Kokkos {
 namespace Impl {
 class SYCLInternal;
@@ -52,6 +48,9 @@ class SYCL {
 
   using scratch_memory_space = ScratchMemorySpace<SYCL>;
 
+  SYCL(const SYCL&)            = default;
+  SYCL& operator=(const SYCL&) = default;
+  ~SYCL();
   SYCL();
   explicit SYCL(const sycl::queue&);
 
@@ -92,8 +91,6 @@ class SYCL {
   static void impl_finalize();
 
   static void impl_initialize(InitializationSettings const&);
-
-  static bool impl_is_initialized();
 
 #ifdef KOKKOS_ENABLE_DEPRECATED_CODE_4
   static int concurrency();
@@ -137,20 +134,25 @@ struct DeviceTypeTraits<Kokkos::SYCL> {
 namespace Experimental::Impl {
 // For each space in partition, create new queue on the same device as
 // base_instance, ignoring weights
-template <std::ranges::input_range Weights, std::output_iterator<SYCL> OutIter>
-void impl_partition_space(const SYCL& base_instance, const Weights& weights,
-                          OutIter out) {
+template <class T>
+std::vector<SYCL> impl_partition_space(const SYCL& base_instance,
+                                       const std::vector<T>& weights) {
   sycl::context context = base_instance.sycl_queue().get_context();
   sycl::device device   = base_instance.sycl_queue().get_device();
 
-  std::ranges::generate_n(out, std::ranges::size(weights), [&context, &device] {
-    return SYCL(sycl::queue(context, device
+  std::vector<SYCL> instances;
+  instances.reserve(weights.size());
+  std::generate_n(std::back_inserter(instances), weights.size(),
+                  [&context, &device]() {
+                    return SYCL(sycl::queue(context, device
 #ifdef KOKKOS_IMPL_SYCL_USE_IN_ORDER_QUEUES
-                            ,
-                            sycl::property::queue::in_order()
+                                            ,
+                                            sycl::property::queue::in_order()
 #endif
-                                ));
-  });
+                                                ));
+                  });
+
+  return instances;
 }
 }  // namespace Experimental::Impl
 

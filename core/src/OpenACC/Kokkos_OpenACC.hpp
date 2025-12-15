@@ -62,13 +62,15 @@ class OpenACC {
 
   using scratch_memory_space = ScratchMemorySpace<OpenACC>;
 
+  OpenACC(const OpenACC&)            = default;
+  OpenACC& operator=(const OpenACC&) = default;
+  ~OpenACC();
   OpenACC();
 
   explicit OpenACC(int async_arg);
 
   static void impl_initialize(InitializationSettings const& settings);
   static void impl_finalize();
-  static bool impl_is_initialized();
 
   void print_configuration(std::ostream& os, bool verbose = false) const;
 

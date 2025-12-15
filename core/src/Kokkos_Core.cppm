@@ -47,9 +47,6 @@ export {
 #ifdef KOKKOS_ENABLE_HPX
   using ::Kokkos::Experimental::HPX;
 #endif
-#ifdef KOKKOS_ENABLE_OPENMPTARGET
-  using ::Kokkos::Experimental::OpenMPTarget;
-#endif
 #ifdef KOKKOS_ENABLE_OPENACC
   using ::Kokkos::Experimental::OpenACC;
 #endif
@@ -62,6 +59,7 @@ export {
   using ::Kokkos::DefaultHostExecutionSpace;
   using ::Kokkos::Device;
   using ::Kokkos::device_id;
+  using ::Kokkos::ExecutionSpace;
   using ::Kokkos::has_shared_host_pinned_space;
   using ::Kokkos::has_shared_space;
   using ::Kokkos::HostSpace;
@@ -72,6 +70,7 @@ export {
   using ::Kokkos::is_memory_space;
   using ::Kokkos::is_memory_space_v;
   using ::Kokkos::is_space;
+  using ::Kokkos::MemorySpace;
   using ::Kokkos::ScratchMemorySpace;
   using ::Kokkos::ScratchRequest;
 #ifdef KOKKOS_HAS_SHARED_SPACE
@@ -130,8 +129,6 @@ export {
   using ::Kokkos::WithoutInitializing;
   namespace Experimental {
   using ::Kokkos::Experimental::AppendExtent;
-  using ::Kokkos::Experimental::DefaultViewHooks;
-  using ::Kokkos::Experimental::EmptyViewHooks;
   using ::Kokkos::Experimental::Extents;
   using ::Kokkos::Experimental::is_hooks_policy;
   using ::Kokkos::Experimental::is_hooks_policy_v;
@@ -148,6 +145,7 @@ export {
   using ::Kokkos::default_inner_direction;
   using ::Kokkos::default_outer_direction;
   using ::Kokkos::Dynamic;
+  using ::Kokkos::ExecutionPolicy;
   using ::Kokkos::IndexType;
   using ::Kokkos::is_execution_policy;
   using ::Kokkos::is_execution_policy_v;
@@ -169,6 +167,7 @@ export {
   using ::Kokkos::single;
   using ::Kokkos::Static;
   using ::Kokkos::team_policy_check_valid_storage_level_argument;
+  using ::Kokkos::TeamHandle;
   using ::Kokkos::TeamPolicy;
   using ::Kokkos::TeamThreadMDRange;
   using ::Kokkos::TeamThreadRange;
@@ -266,6 +265,7 @@ export {
   using ::Kokkos::MinMaxLocScalar;
   using ::Kokkos::MinMaxScalar;
   using ::Kokkos::Prod;
+  using ::Kokkos::Reducer;
   using ::Kokkos::reduction_identity;
   using ::Kokkos::StdIsPartitioned;    // FIXME Move to algorithms
   using ::Kokkos::StdIsPartScalar;     // FIXME Move to algorithms
@@ -488,6 +488,9 @@ export {
   using ::Kokkos::hypot;
   using ::Kokkos::hypotf;
   using ::Kokkos::hypotl;
+  using ::Kokkos::ilogb;
+  using ::Kokkos::ilogbf;
+  using ::Kokkos::ilogbl;
   using ::Kokkos::isfinite;
   using ::Kokkos::isinf;
   using ::Kokkos::isnan;
