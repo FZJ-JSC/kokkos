@@ -130,6 +130,7 @@ foreach(Tag Threads;Serial;OpenMP;Cuda;HPX;OpenACC;HIP;SYCL)
       ExecutionSpace
       FunctorAnalysis
       Graph
+      GraphNodeCtorProps
       HostSharedPtr
       HostSharedPtrAccessOnDevice
       JoinBackwardCompatibility
@@ -167,6 +168,7 @@ foreach(Tag Threads;Serial;OpenMP;Cuda;HPX;OpenACC;HIP;SYCL)
         OccupancyControlTrait
         Other
         ParallelScanRangePolicy
+        CustomScalarParallelScan
         Printf
         QuadPrecisionMath
         RangePolicy
@@ -297,7 +299,16 @@ foreach(Tag Threads;Serial;OpenMP;Cuda;HPX;OpenACC;HIP;SYCL)
     endforeach()
 
     set(${Tag}_SOURCES2D)
-    foreach(Name SubView_c10 SubView_c11 SubView_c12 SubView_c13 SubView_c14 SubView_c15)
+    foreach(
+      Name
+      SubView_c10
+      SubView_c11
+      SubView_c12
+      SubView_c13
+      SubView_c14
+      SubView_c15
+      SubView_c16
+    )
       set(file ${dir}/Test${Tag}_${Name}.cpp)
       # Write to a temporary intermediate file and call configure_file to avoid
       # updating timestamps triggering unnecessary rebuilds on subsequent cmake runs.
@@ -313,7 +324,9 @@ foreach(Tag Threads;Serial;OpenMP;Cuda;HPX;OpenACC;HIP;SYCL)
     # ViewSupport should eventually contain the new implementation
     # detail tests for the mdspan based View
     if(Kokkos_ENABLE_IMPL_MDSPAN)
-      set(BV_TestNames BasicView ReferenceCountedAccessor ReferenceCountedDataHandle AllocationAndSpanSize)
+      set(BV_TestNames BasicView ReferenceCountedAccessor ReferenceCountedDataHandle AllocationAndSpanSize
+                       ViewEqualityOperator LegacyLayoutFunction
+      )
       if(NOT Kokkos_ENABLE_IMPL_VIEW_LEGACY AND NOT Kokkos_ENABLE_OPENACC)
         list(APPEND BV_TestNames ViewCustomizationAccessorArg ViewCustomizationAllocationType
              ViewCustomizationAccessorFromMapping
@@ -493,6 +506,7 @@ if(KOKKOS_ENABLE_OPENACC AND KOKKOS_CXX_COMPILER_ID STREQUAL Clang)
       ${CMAKE_CURRENT_BINARY_DIR}/openacc/TestOpenACC_BitManipulationBuiltins.cpp
       ${CMAKE_CURRENT_BINARY_DIR}/openacc/TestOpenACC_MathematicalFunctions3.cpp
       ${CMAKE_CURRENT_BINARY_DIR}/openacc/TestOpenACC_ParallelScanRangePolicy.cpp
+      ${CMAKE_CURRENT_BINARY_DIR}/openacc/TestOpenACC_CustomScalarParallelScan.cpp
       ${CMAKE_CURRENT_BINARY_DIR}/openacc/TestOpenACC_SubView_c04.cpp
       ${CMAKE_CURRENT_BINARY_DIR}/openacc/TestOpenACC_SubView_c05.cpp
       ${CMAKE_CURRENT_BINARY_DIR}/openacc/TestOpenACC_SubView_c06.cpp

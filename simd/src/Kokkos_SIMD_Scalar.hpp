@@ -172,13 +172,7 @@ class basic_simd<T, simd_abi::scalar> {
 
   static constexpr Kokkos::Impl::integral_constant<Impl::simd_size_t, 1> size{};
 
-  KOKKOS_DEFAULTED_FUNCTION constexpr basic_simd() noexcept         = default;
-  KOKKOS_DEFAULTED_FUNCTION constexpr basic_simd(basic_simd const&) = default;
-  KOKKOS_DEFAULTED_FUNCTION constexpr basic_simd(basic_simd&&)      = default;
-  KOKKOS_DEFAULTED_FUNCTION constexpr basic_simd& operator=(basic_simd const&) =
-      default;
-  KOKKOS_DEFAULTED_FUNCTION constexpr basic_simd& operator=(basic_simd&&) =
-      default;
+  KOKKOS_DEFAULTED_FUNCTION constexpr basic_simd() noexcept = default;
   template <class U>
     requires std::convertible_to<U, value_type>
   // NOLINTNEXTLINE(bugprone-forwarding-reference-overload)
@@ -250,37 +244,17 @@ class basic_simd<T, simd_abi::scalar> {
       basic_simd const& lhs, basic_simd const& rhs) noexcept {
     return basic_simd(lhs.m_value + rhs.m_value);
   }
-  template <Impl::Arithmetic U>
-  KOKKOS_FORCEINLINE_FUNCTION friend constexpr basic_simd operator+(
-      basic_simd const& lhs, U rhs) {
-    return lhs.m_value + basic_simd(rhs);
-  }
   KOKKOS_FORCEINLINE_FUNCTION friend constexpr basic_simd operator-(
       basic_simd const& lhs, basic_simd const& rhs) noexcept {
     return basic_simd(lhs.m_value - rhs.m_value);
-  }
-  template <Impl::Arithmetic U>
-  KOKKOS_FORCEINLINE_FUNCTION friend constexpr basic_simd operator-(
-      basic_simd const& lhs, U rhs) {
-    return lhs.m_value - basic_simd(rhs);
   }
   KOKKOS_FORCEINLINE_FUNCTION friend constexpr basic_simd operator*(
       basic_simd const& lhs, basic_simd const& rhs) noexcept {
     return basic_simd(lhs.m_value * rhs.m_value);
   }
-  template <Impl::Arithmetic U>
-  KOKKOS_FORCEINLINE_FUNCTION friend constexpr basic_simd operator*(
-      basic_simd const& lhs, U rhs) {
-    return lhs.m_value * basic_simd(rhs);
-  }
   KOKKOS_FORCEINLINE_FUNCTION friend constexpr basic_simd operator/(
       basic_simd const& lhs, basic_simd const& rhs) noexcept {
     return basic_simd(lhs.m_value / rhs.m_value);
-  }
-  template <Impl::Arithmetic U>
-  KOKKOS_FORCEINLINE_FUNCTION friend constexpr basic_simd operator/(
-      basic_simd const& lhs, U rhs) {
-    return lhs.m_value / basic_simd(rhs);
   }
   KOKKOS_FORCEINLINE_FUNCTION friend constexpr basic_simd operator&(
       basic_simd const& lhs, basic_simd const& rhs) noexcept {
@@ -524,6 +498,87 @@ KOKKOS_FORCEINLINE_FUNCTION constexpr void simd_partial_store(
   }
 }
 
+template <Impl::SimdVecType V, Impl::Ranges::contiguous_range R,
+          Impl::SimdIntegral I, typename... Flags>
+  requires Impl::Ranges::sized_range<R> &&
+           std::same_as<typename V::abi_type, simd_abi::scalar>
+KOKKOS_FORCEINLINE_FUNCTION constexpr V unchecked_gather_from(
+    R&& in, const I& indices, simd_flags<Flags...> = simd_flag_default) {
+  using T = typename V::value_type;
+  return basic_simd<T, simd_abi::scalar>(in[indices[0]]);
+}
+
+template <Impl::SimdVecType V, Impl::Ranges::contiguous_range R,
+          Impl::SimdIntegral I, typename... Flags>
+  requires Impl::Ranges::sized_range<R> &&
+           std::same_as<typename V::abi_type, simd_abi::scalar>
+KOKKOS_FORCEINLINE_FUNCTION constexpr V unchecked_gather_from(
+    R&& in, const typename I::mask_type& mask, const I& indices,
+    simd_flags<Flags...> = simd_flag_default) {
+  using T  = typename V::value_type;
+  auto val = (mask[0]) ? in[indices[0]] : T{};
+  return basic_simd<T, simd_abi::scalar>(val);
+}
+
+template <Impl::SimdVecType V, Impl::Ranges::contiguous_range R,
+          Impl::SimdIntegral I, typename... Flags>
+  requires Impl::Ranges::sized_range<R> &&
+           std::same_as<typename V::abi_type, simd_abi::scalar>
+KOKKOS_FORCEINLINE_FUNCTION constexpr V partial_gather_from(
+    R&& in, const I& indices, simd_flags<Flags...> = simd_flag_default) {
+  return unchecked_gather_from<V>(in, indices);
+}
+
+template <Impl::SimdVecType V, Impl::Ranges::contiguous_range R,
+          Impl::SimdIntegral I, typename... Flags>
+  requires Impl::Ranges::sized_range<R> &&
+           std::same_as<typename V::abi_type, simd_abi::scalar>
+KOKKOS_FORCEINLINE_FUNCTION constexpr V partial_gather_from(
+    R&& in, const typename I::mask_type& mask, const I& indices,
+    simd_flags<Flags...> = simd_flag_default) {
+  return unchecked_gather_from<V>(in, mask, indices);
+}
+
+template <Impl::SimdVecType V, Impl::Ranges::contiguous_range R,
+          Impl::SimdIntegral I, typename... Flags>
+  requires Impl::Ranges::sized_range<R> &&
+           std::same_as<typename V::abi_type, simd_abi::scalar>
+KOKKOS_FORCEINLINE_FUNCTION constexpr void unchecked_scatter_to(
+    const V& v, R&& out, const I& indices,
+    simd_flags<Flags...> = simd_flag_default) {
+  out[indices[0]] = v[0];
+}
+
+template <Impl::SimdVecType V, Impl::Ranges::contiguous_range R,
+          Impl::SimdIntegral I, typename... Flags>
+  requires Impl::Ranges::sized_range<R> &&
+           std::same_as<typename V::abi_type, simd_abi::scalar>
+KOKKOS_FORCEINLINE_FUNCTION constexpr void unchecked_scatter_to(
+    const V& v, R&& out, const typename I::mask_type& mask, const I& indices,
+    simd_flags<Flags...> = simd_flag_default) {
+  out[indices[0]] = (mask[0]) ? v[0] : typename V::value_type{};
+}
+
+template <Impl::SimdVecType V, Impl::Ranges::contiguous_range R,
+          Impl::SimdIntegral I, typename... Flags>
+  requires Impl::Ranges::sized_range<R> &&
+           std::same_as<typename V::abi_type, simd_abi::scalar>
+KOKKOS_FORCEINLINE_FUNCTION constexpr void partial_scatter_to(
+    const V& v, R&& out, const I& indices,
+    simd_flags<Flags...> = simd_flag_default) {
+  unchecked_scatter_to<V>(v, out, indices);
+}
+
+template <Impl::SimdVecType V, Impl::Ranges::contiguous_range R,
+          Impl::SimdIntegral I, typename... Flags>
+  requires Impl::Ranges::sized_range<R> &&
+           std::same_as<typename V::abi_type, simd_abi::scalar>
+KOKKOS_FORCEINLINE_FUNCTION constexpr void partial_scatter_to(
+    const V& v, R&& out, const typename I::mask_type& mask, const I& indices,
+    simd_flags<Flags...> = simd_flag_default) {
+  unchecked_scatter_to<V>(v, out, mask, indices);
+}
+
 template <class T>
 KOKKOS_FORCEINLINE_FUNCTION constexpr basic_simd<T, simd_abi::scalar> condition(
     std::type_identity_t<basic_simd_mask<T, simd_abi::scalar>> const& a,
@@ -534,6 +589,7 @@ KOKKOS_FORCEINLINE_FUNCTION constexpr basic_simd<T, simd_abi::scalar> condition(
 }
 
 template <class T, class BinaryOperation = std::plus<>>
+  requires requires(T x, BinaryOperation op) { op(x, x); }
 KOKKOS_FORCEINLINE_FUNCTION constexpr T reduce(
     Experimental::basic_simd<T, Experimental::simd_abi::scalar> const& x,
     BinaryOperation = {}) noexcept {

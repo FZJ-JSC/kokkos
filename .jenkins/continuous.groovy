@@ -136,6 +136,10 @@ pipeline {
                             args '-v /tmp/ccache.kokkos:/tmp/ccache --device=/dev/kfd --device=/dev/dri --security-opt seccomp=unconfined --group-add video --env HIP_VISIBLE_DEVICES=$HIP_VISIBLE_DEVICES --env NODE_NAME=${env.NODE_NAME} --env STAGE_NAME=${env.STAGE_NAME}'
                         }
                     }
+                    environment {
+                        // FIXME Reenable hip.graph_capture for rocm 7 testing
+                        GTEST_FILTER = '-hip.graph_capture'
+                    }
                     steps {
                         sh 'ccache --zero-stats'
                         sh '''#!/bin/bash
@@ -154,6 +158,7 @@ pipeline {
                                 -DKokkos_ENABLE_DEPRECATED_CODE_4=ON \
                                 -DKokkos_ENABLE_TESTS=ON \
                                 -DKokkos_ENABLE_HIP=ON \
+                                -DKokkos_ENABLE_ROCTHRUST=OFF \
                                 -DKokkos_ENABLE_MULTIPLE_CMAKE_LANGUAGES=ON \
                                 -DCMAKE_INSTALL_PREFIX=${PWD}/../install \
                               .. && \
@@ -421,6 +426,8 @@ pipeline {
                         OMP_MAX_ACTIVE_LEVELS = 3
                         OMP_PLACES = 'threads'
                         OMP_PROC_BIND = 'spread'
+                        // FIXME Reenable hip.graph_capture for rocm 7 testing
+                        GTEST_FILTER = '-hip.graph_capture'
                     }
                     steps {
                         sh 'ccache --zero-stats'
@@ -465,8 +472,9 @@ pipeline {
                         }
                     }
                     environment {
-                        // FIXME Test returns a wrong value
-                        GTEST_FILTER = '-hip_hostpinned.view_allocation_large_rank'
+                        // FIXME hip_hostpinned.view_allocation_large_rank test returns a wrong value
+                        // FIXME Reenable hip.graph_capture for rocm 7 testing
+                        GTEST_FILTER = '-hip_hostpinned.view_allocation_large_rank:hip.graph_capture'
                     }
                     steps {
                         sh 'ccache --zero-stats'
@@ -594,6 +602,9 @@ pipeline {
                             args '-v /tmp/ccache.kokkos:/tmp/ccache --env NVIDIA_VISIBLE_DEVICES=$NVIDIA_VISIBLE_DEVICES --env NODE_NAME=${env.NODE_NAME} --env STAGE_NAME=${env.STAGE_NAME}'
                         }
                     }
+                    environment {
+                        KOKKOS_NUM_THREADS = 8
+                    }
                     steps {
                         sh 'ccache --zero-stats'
                         sh '''#!/bin/bash
@@ -616,7 +627,7 @@ pipeline {
                                 -DKokkos_ENABLE_TESTS=ON \
                                 -DKokkos_ENABLE_CUDA=ON \
                                 -DKokkos_ENABLE_LIBDL=OFF \
-                                -DKokkos_ENABLE_OPENMP=ON \
+                                -DKokkos_ENABLE_THREADS=ON \
                                 -DKokkos_ENABLE_IMPL_CUDA_MALLOC_ASYNC=ON \
                               .. && \
                               set +x && \
